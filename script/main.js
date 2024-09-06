@@ -1,14 +1,14 @@
 const gameBoard = {
-//   board: [
-//     [[], [], []],
-//     [[], [], []],
-//     [[], [], []],
-//   ],
   board: [
-    ['x', 'o', 'x'],
-    ['x', 'o', 'o'],
-    ['o', 'x','x'],
+    [[], [], []],
+    [[], [], []],
+    [[], [], []],
   ],
+  //   board: [
+  //     ['x', 'o', 'x'],
+  //     ['x', 'o', 'o'],
+  //     ['o', 'x', 'x'],
+  //   ],
 };
 
 const players = {
@@ -35,21 +35,21 @@ const game = {
     }
     gameBoard.board[row][column] = currentMarker;
   },
+
   switchPlayer(plyerMaker) {
     if (plyerMaker === 'x') {
-      currentMarker = players.playerTwo.marker;
-    } else {
       currentMarker = players.playerOne.marker;
+    } else {
+      currentMarker = players.playerTwo.marker;
     }
   },
+
   checkWinner() {
     if (game.checkEmptyBoard()) {
-      console.log('The board is full! Tie!');
-    } else {
-      console.log('There are still empty spaces.');
+      return console.log('The board is full! Tie!');
     }
 
-    if (
+    let isRowWinner =
       (gameBoard.board[0][0] === currentMarker &&
         gameBoard.board[0][1] === currentMarker &&
         gameBoard.board[0][2] === currentMarker) ||
@@ -58,19 +58,23 @@ const game = {
         gameBoard.board[1][2] === currentMarker) ||
       (gameBoard.board[2][0] === currentMarker &&
         gameBoard.board[2][1] === currentMarker &&
-        gameBoard.board[2][2] === currentMarker) ||
+        gameBoard.board[2][2] === currentMarker);
+
+    let isDiagonalWinner =
       (gameBoard.board[0][0] === currentMarker &&
         gameBoard.board[1][1] === currentMarker &&
         gameBoard.board[2][2] === currentMarker) ||
       (gameBoard.board[0][2] === currentMarker &&
         gameBoard.board[1][1] === currentMarker &&
-        gameBoard.board[2][0] === currentMarker)
-    ) {
+        gameBoard.board[2][0] === currentMarker);
+
+    if (isRowWinner || isDiagonalWinner) {
       return console.log(`${currentMarker} won the game`);
     } else {
       console.log(`${currentMarker} turn`);
     }
   },
+
   checkEmptyBoard() {
     let isFull = gameBoard.board
       .flat()
@@ -87,9 +91,14 @@ game.checkWinner();
 game.addMarkerToBoard(1, 1, currentMarker);
 game.switchPlayer(currentMarker);
 game.checkWinner();
+game.addMarkerToBoard(0, 2, currentMarker);
+game.switchPlayer(currentMarker);
+game.checkWinner();
 game.addMarkerToBoard(2, 2, currentMarker);
 game.switchPlayer(currentMarker);
 game.checkWinner();
-game.checkEmptyBoard();
+game.addMarkerToBoard(0, 1, currentMarker);
+game.switchPlayer(currentMarker);
+game.checkWinner();
 
 console.log(gameBoard.board);
