@@ -1,8 +1,8 @@
 const gameboard = (function () {
   const board = [
-    ['', '', ''],
-    ['', '', ''],
-    ['', '', ''],
+    ["", "", ""],
+    ["", "", ""],
+    ["", "", ""],
   ];
 
   const getBoard = () => board;
@@ -16,35 +16,35 @@ function createPlayer(name, marker) {
 }
 
 function gameController() {
-  const playerOne = createPlayer('marlen', 'x');
-  const playerTwo = createPlayer('Ai', 'o');
-  let activePLayer = playerOne;
+  const playerOne = createPlayer("marlen", "x");
+  const playerTwo = createPlayer("Ai", "o");
+  let activePlayer = playerOne;
   let currentMarker = playerOne.playerMarker;
 
-  const getActivePlayer = () => activePLayer;
+  const getActivePlayer = () => activePlayer;
 
   const board = gameboard.getBoard();
 
   const switchPlayer = () => {
-    if (currentMarker === 'x') {
+    if (currentMarker === "x") {
       currentMarker = playerTwo.playerMarker;
-      activePLayer = playerTwo;
+      activePlayer = playerTwo;
     } else {
       currentMarker = playerOne.playerMarker;
-      activePLayer = playerOne;
+      activePlayer = playerOne;
     }
     return currentMarker;
   };
 
   const checkEmptyBoard = () => {
-    let isFull = board.flat().every((cell) => cell === 'x' || cell === 'o');
-    if (isFull) console.log('The cell is full');
+    let isFull = board.flat().every((cell) => cell === "x" || cell === "o");
+    if (isFull) console.log("The cell is full");
     return isFull;
   };
 
   const addMarkerToBoard = (row, column, currentMarker) => {
-    if (board[row][column] === 'x' || board[row][column] === 'o') {
-      return console.log('This spot is taken!');
+    if (board[row][column] === "x" || board[row][column] === "o") {
+      return console.log("This spot is taken!");
     }
     board[row][column] = currentMarker;
   };
@@ -82,27 +82,60 @@ function gameController() {
 
     if (isRowWinner || isDiagonalWinner || isColumnWinner) {
       console.log(`${getActivePlayer().playerName} won the game`);
-      return;
-    } else {
-      console.log(`${getActivePlayer().playerName}'s turn`);
+      return { isGameOver: true };
     }
+    return { isGameOver: false };
   };
 
   const playRound = (row, column) => {
-    checkEmptyBoard();
+    if (checkEmptyBoard()) return;
+
     addMarkerToBoard(row, column, currentMarker);
-    checkWinner();
-    switchPlayer();
+    const winCheck = checkWinner();
+
+    if (!winCheck.isGameOver) {
+      switchPlayer();
+    }
   };
 
-  playRound(0, 1);
-  playRound(0, 2);
-  playRound(2, 1);
-  playRound(2, 0);
-  playRound(2, 2);
-  playRound(1, 1);
-
-  console.log(board);
+  return {
+    playRound,
+    getActivePlayer,
+    getBoard: () => board,
+  };
 }
 
-gameController();
+function screenController() {
+  const game = gameController();
+  const boardDiv = document.querySelector(".board");
+  const playerTurnDiv = document.querySelector(".turn");
+
+  const updateScreen = () => {
+    boardDiv.textContent = "";
+    const board = game.getBoard();
+    const activePlayer = game.getActivePlayer();
+
+    board.forEach((row, rowIndex) => {
+      row.forEach((cell, columnIndex) => {
+        const button = document.createElement("button");
+        button.textContent = cell;
+        button.setAttribute("data-row", rowIndex);
+        button.setAttribute("data-column", columnIndex);
+        button.classList.add("cell", "btn");
+
+        button.addEventListener("click", () => {
+          game.playRound(rowIndex, columnIndex);
+          updateScreen();
+        });
+
+        boardDiv.appendChild(button);
+      });
+    });
+
+    playerTurnDiv.textContent = `${activePlayer.playerName}'s turn`;
+  };
+
+  updateScreen();
+}
+
+screenController();
